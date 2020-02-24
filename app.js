@@ -14,13 +14,11 @@ const mongoose = require('mongoose');
 const Dishes = require('./models/dishes');
 
 const url = 'mongodb://localhost:27017/testServer';
-
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
-	console.log('Connected correctly to the server');
-
-},(err) => { console.log(err); });
+	console.log('Connected to the server')
+}, (err) => { console.log(err); });
 
 var app = express();
 
@@ -38,7 +36,9 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
-app.use('/leaders', leaderRouter);
+app.use('/leader', leaderRouter);
+app.use('/leadership', leaderRouter);
+app.use('dishes/:dishId', dishRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
