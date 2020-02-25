@@ -38,8 +38,8 @@ app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leader', leaderRouter);
 app.use('/leadership', leaderRouter);
-app.use('dishes/:dishId', dishRouter);
-
+app.use('/:dishId', dishRouter);
+app.use('/:dishId/comments/:commentId', dishRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
