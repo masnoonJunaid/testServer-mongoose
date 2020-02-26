@@ -1,51 +1,46 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const mongoose = require('mongoose');
+
+const Leaders = require('../models/leaders');
 
 const leaderRouter = express.Router();
 leaderRouter.use(bodyParser.json());
 
 leaderRouter.route('/')
-.all((req,res,next) => {
-	res.statusCode = 200;
-	res.setHeader('Content-type', 'text/plain');
-	next();
-})
-.get((req,res,next) =>{
-	res.end('This is the result of GET request of leaderRouter module');
-})
-.post((req,res,next) => {
-	res.end('You will add about yourself :' + res.body.leader + 'and your parliament seat detail' + req.body.seat);
-})
-.put((req,res,next) => {
-	// status code 403 signifies certain operation doesn't supported here
-	res.statusCode = 403;
-res.end('PUT operation is not supported on leadership');
-})
-.delete((req,res,next) => {
-	res.end('Deleting your leadership profile');
-})
-
-leaderRouter.route('/:leaderId')
-.all((req,res,next) => {
-	res.statusCode = 200;
-	res.setHeader('content-type', 'text/plain');
-	next();
-})
 .get((req,res,next) => {
-	res.end('You will receive your leader profile with your leaderId: ' + req.params.leaderId)
+	Leaders.find({})
+	.then((leaders) => {
+		res.statusCode = 200;
+		res.setHeader('Content-Type','application/json');
+		res.json(leaders);
+	}, (err) =>(err))
+	.catch((err) => next(err));
 })
 .post((req,res,next) => {
-	res.statusCode = 403;
-	res.end('post operation will be supported at /leadership/ ' + req.params.leaderId + 'once i start taking your reviews' );
+	Leaders.create(req.body)
+	.then((leader) => {
+		console.log('Your profile as a leader added', leader);
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		res.json(leader);
+	}, (err) => next())
+	.catch((err) =>next(err));
 })
-.put((req,res,next) => {
-	res.write('will update your leadership profile at leaderId: ' + req.params.leaderId + '\n');
-	res.end('you will update your :' + req.body.flat + 'with address :' + req.body.address);
-
+.put((req,res, next) => {
+	res.statusCode = 403;
+	res.end('This operation is not supported on /leaders')
 })
 .delete((req,res,next) => {
-	res.end('This operation will delete your profile with id:  ' +  req.params.leaderId);
-});
+	Leaders.remove({})
+	.then((resp) => {
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		res.json(res);
+	},(err) => next(err))
+	.catch((err) => next(err));
+})
+
 
 module.exports =  leaderRouter;
