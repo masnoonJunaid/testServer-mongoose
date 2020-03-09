@@ -8,8 +8,18 @@ var router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+// /users REST API end point when an Admin Sends a GET request to http://localhost:3000/users
+
+
+router.route('/')
+.get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)  => {
+  User.find({})
+  .then((users) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+  }, (err) => next(err))
+  .catch((err) => next(err));
 });
 
 

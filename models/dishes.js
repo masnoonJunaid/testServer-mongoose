@@ -14,7 +14,7 @@ const commentSchema = new Schema ({
 	comment: {
 		type: String,
 		required: true
-	}
+	},
 	author: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
@@ -29,18 +29,16 @@ const dishSchema  = new Schema({
 		required: true,
 		unique: true
 	},
-	description : {
-		type: String,
-		required: true
-	},
 	image: {
 		type: String,
 		required: true
 	},
+
 	category : {
 		type: String,
 		required: true
 	},
+
 	label: {
 		type: String,
 		default: ''
@@ -53,6 +51,10 @@ const dishSchema  = new Schema({
 	featured: {
 		type: Boolean,
 		default: false
+	},
+	description : {
+		type: String,
+		required: true
 	},
 	comments: [ commentSchema ]
        },{

@@ -20,7 +20,7 @@ dishRouter.route('/')
 	}, (err) => next(err))
 	.catch((err) => next(err));
 })
-.post(authenticate.verifyUser, (req,res,next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req,res,next) => {
 	Dishes.create(req.body)
 	.then((dish) => {
 		console.log('Dish Created', dish);
@@ -30,11 +30,11 @@ dishRouter.route('/')
 	},(err) => next(err))
 	.catch((err) => next(err));
 })
-.put( authenticate.veryfyUser, (req,res,next) => {
+.put( authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
 	res.statusCode = 403;
 	res.end('PUT operation not supported on /dishes');
 })
-.delete(authenticate.veryfyUser, (req,res,next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req,res,next) => {
 	Dishes.remove({})
 	.then((resp) => {
 		res.statusCode = 200;
@@ -57,14 +57,14 @@ dishRouter.route('/:dishId')
         }, (err) => next(err))
         .catch((err) => next(err));
 })
-.post(authenticate.verifyUser, (req,res,next) => {
+.post(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
 
         //constructing the reply message using the information from body of the request message and sending it back client and we can control what server is receiving and sending in the body of the message
 
         res.statusCode = 403;
 	res.end('POST operation not supported on /dishes/' + req.params.dishId);
 })
-.put(authenticate.verifyUser, (req,res,next) => {
+.put(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
         Dishes.findByIdAndUpdate(req.params.dishId, {
 		$set: req.body
 	}, { new: true})
@@ -75,7 +75,7 @@ dishRouter.route('/:dishId')
 	}, (err) => next(err))
 	.catch((err) => next(next));
 })
-.delete(authenticate.verifyUser, (req,res,next) => {
+.delete(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
 	Dishes.findByIdAndRemove(req.params.dishId)
 	.then((resp) => {
 		res.statusCode = 200;
@@ -105,7 +105,7 @@ dishRouter.route('/:dishId/comments')
 	}, (err) => next(err))
 	.catch((err) => next(err));
 })
-.post(authenticate.verifyUser,(req,res,next) =>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) =>{
 	Dishes.findById(req.params.dishId)
 	.then((dish) => {
 		if (dish != null){
@@ -130,11 +130,11 @@ dishRouter.route('/:dishId/comments')
 	},(err) => next(err))
 	.catch((err) => next(err));
 })
-.put(authenticate.verifyUser,(req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
 	res.statusCode = 403;
 	res.end('PUT operation not supported on /dishes/' + req.params.dishId + '/comments');
 })
-.delete(authenticate.veryfyUser,(req,res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req,res, next) => {
 	Dishes.findById(req.params.dishId)
 	.then((dish) => {
 		if(dish != null ){
@@ -181,15 +181,15 @@ dishRouter.route('/:dishId/comments/:commentId')
 	}, (err) => next(err))
 	.catch((err) => next(err));
 })
-.post(authenticate.verifyUser,(req,res,next) => {
+.post(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
 	res.statusCode = 403;
 	res.end('POST operation not supported on /dishes/' + req.params.dishId
 	+ '/comments/' + req.params.commentId);
 })
-.put(authenticate.verifyUser,(req,res,next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req,res,next) => {
 	Dishes.findById(req.params.dishId)
 	.then((dish) => {
-		if(dish != null && dish.comments.id(req.params.commentId) != null){
+		if(dish != null && dish.comments.id(req.params.commentId) != null && dish.comments.id == req.user._id ){
 			if(req.body.comment){
 				dish.comments.id(req.params.commentId).comment = req.body.comment;
 			}
@@ -217,10 +217,10 @@ dishRouter.route('/:dishId/comments/:commentId')
 	}, (err) => next(err))
 		.catch((err) => next(err));
 })
-.delete(authenticate.verifyUser, (req,res,next) => {
+.delete(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
 	Dishes.findById(req.params.dishId)
 		.then((dish) => {
-			if (dish != null && dish.comments.id(req.params.commentId) != null){
+			if (dish != null && dish.comments.id(req.params.commentId) != null && dish.comments.id == req.user._id){
 				dish.comments.id(req.params.commentId).remove();
 				dish.save()
 				.then((dish) => {
@@ -249,43 +249,7 @@ dishRouter.route('/:dishId/comments/:commentId')
 
 
 // This is the change I had to make tp support dishId Call
-dishRouter.route('/:dishId')
-.get( (req,res, next) => {
-	Dishes.findById(req.params.dishId)
-	.then((dish) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type','application/json');
-                res.json(dish);
-        }, (err) => next(err))
-        .catch((err) => next(err));
-})
-.post((req,res,next) => {
 
-        //constructing the reply message using the information from body of the request message and sending it back client and we can control what server is receiving and sending in the body of the message
-
-        res.statusCode = 403;
-	res.end('POST operation not supported on /dishes/' + req.params.dishId);
-})
-.put( (req,res,next) => {
-        Dishes.findByIdAndUpdate(req.params.dishId, {
-		$set: req.body
-	}, { new: true})
-	.then((dish) => {
-		res.statusCode = 200;
-		res.setHeader('Content-Type', 'application/json');
-		res.json(dish);
-	}, (err) => next(err))
-	.catch((err) => next(next));
-})
-.delete((req,res,next) => {
-	Dishes.findByIdAndRemove(req.params.dishId)
-	.then((resp) => {
-		res.statusCode = 200;
-		res.setHeader('Content-Type', 'application/json');
-		res.json(resp);
-	}, (err) => next(err))
-	.catch((err)=> next(err));
-});
 
 
 

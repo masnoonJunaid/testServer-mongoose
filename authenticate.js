@@ -2,7 +2,7 @@ var passport = require('passport');
 
 var LocalStrategy =  require('passport-local').Strategy;
 var User = require('./models/user');
-var JwtStrategy = require('passport-jwt').Straegy;
+var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken');
 
@@ -16,7 +16,7 @@ passport.deserializeUser(User.deserializeUser());
 
 exports.getToken = function(user) {
 	return jwt.sign(user, config.secretKey,
-		{expiresIn: 3600});
+		{expiresIn: 7200});
 };
 
 var opts = {};
@@ -40,4 +40,15 @@ exports.jwtPassport = passport.use( new JwtStrategy(opts,
 		});
 	}));
 
+exports.verifyAdmin = (req, res, next) => {
+	if (req.user.admin){
+		next();
+	}	else {
+		var err = new Error('You are not authorized to perform this operation!');
+		res.statusCode = 403;
+		return next(err)
+	}
+}
+
 exports.verifyUser = passport.authenticate('jwt', {session: false});
+exports.verifyAdmin = passport.authenticate('jwt',{session : false});
