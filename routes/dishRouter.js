@@ -130,7 +130,7 @@ dishRouter.route('/:dishId/comments')
 	},(err) => next(err))
 	.catch((err) => next(err));
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
 	res.statusCode = 403;
 	res.end('PUT operation not supported on /dishes/' + req.params.dishId + '/comments');
 })
@@ -181,14 +181,21 @@ dishRouter.route('/:dishId/comments/:commentId')
 	}, (err) => next(err))
 	.catch((err) => next(err));
 })
-.post(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
+.post(authenticate.verifyUser, (req,res,next) => {
 	res.statusCode = 403;
 	res.end('POST operation not supported on /dishes/' + req.params.dishId
 	+ '/comments/' + req.params.commentId);
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req,res,next) => {
+.put(authenticate.verifyUser,  (req,res,next) => {
 	Dishes.findById(req.params.dishId)
 	.then((dish) => {
+
+		// if(!req.user._id.equals(dish.comments.id(req.params.commentId).author._id)){
+		// 	err = new Error('The user not authorized!');
+		// 	err.status = 403;
+		// 	return next(err);
+		// }
+
 		if(dish != null && dish.comments.id(req.params.commentId) != null && dish.comments.id == req.user._id ){
 			if(req.body.comment){
 				dish.comments.id(req.params.commentId).comment = req.body.comment;
@@ -217,7 +224,7 @@ dishRouter.route('/:dishId/comments/:commentId')
 	}, (err) => next(err))
 		.catch((err) => next(err));
 })
-.delete(authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next) => {
+.delete(authenticate.verifyUser, (req,res,next) => {
 	Dishes.findById(req.params.dishId)
 		.then((dish) => {
 			if (dish != null && dish.comments.id(req.params.commentId) != null && dish.comments.id == req.user._id){

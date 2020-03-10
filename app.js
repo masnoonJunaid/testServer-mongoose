@@ -28,6 +28,18 @@ connect.then((db) => {
 
 var app = express();
 
+//redirecting the entire coming request to the secure server;
+
+app.all('*', (req, res, next) => {
+	if(req.secure) {
+		return next();
+	}
+	else {
+// statusCode 307 indicate the targeted resource move somewhere else temporarily
+		res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+	}
+})
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
