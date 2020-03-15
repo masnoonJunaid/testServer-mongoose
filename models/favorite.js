@@ -7,7 +7,7 @@ const favoriteSchema = new Schema ({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
-	comments: [
+	dishes : [
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Dish'
 	]

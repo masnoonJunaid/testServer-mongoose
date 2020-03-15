@@ -79,4 +79,72 @@ favoriteRouter.route('/')
 		})
 });
 
+//support for favorite/:dishId end point
+
+favoriteRouter.route('/:dishId')
+.options(cors.corsWithOptions, authenticate.verifyUser, (req, res,) => {res.sendStatus(200);})
+.get(cors.cors, (req, res, next) => {
+	res.statusCode = 403;
+	res.end('GET operation not supported here!');
+})
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+	Favorites.findById(req.params.dishId)
+	.then((favorite) => {
+		if(!favorite){
+			favorite.dish.push(req.body);
+			favorite.save()
+			.then((favorite) => {
+				Favorites.findById(dish._id)
+				.populate('favorite.dishes')
+				.then((favorite) => {
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(favorite);
+				})
+			}, (err) => next(err));
+		}
+		else{
+			err = new Error('Dish' + req.params.dishId + 'already your favorite dish');
+			return next(err);
+		}
+	}, (err) => next(err))
+	.catch((err) => next(err));
+})
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+	res.statusCode = 403;
+	res.end('PUT operation not supported on /favorites')
+})
+.delete(cors.corsWithOptions, authenticate.verifyUser, (res, res, next) => {
+	Favorites.findById(req.params.dishId)
+	.then((favorite) => {
+		if (favorite != null && favorite.dishes.id(req.params.dishId) != null && favorite.dishes.id == req.user._id){
+		favorite.dishes.id(req.params.dishId).remove();
+			favorite.save()
+			.then((dish) => {
+				Favorite.findById(dish._is)
+				.populate('dishes.author')
+				.then((favorite) => {
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(favorite);
+				})
+			}, (err) => next(err));
+		}
+		else if(favorite == null) {
+			err = new Error('Favorite Dish' + req.params.dishId + ' not found');
+			err.status = 404;
+			return next(err);
+		} else {
+			err = new Error('Favotite dish' + req.params.dsihId + ' Not found');
+			err.status = 404;
+			return next(err);
+		}
+	}, (err) => next(err))
+	.catch((err) => next(err));
+});
+
+
+
+module.exports = favoriteRouter;
+
 
