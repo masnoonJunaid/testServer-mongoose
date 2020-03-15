@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const authenticate = require('../authenticate');
 
-const cors = require('../cors');
+const cors = require('./cors');
 
 const Favorites = require('../models/favorite');
 
@@ -67,16 +67,16 @@ favoriteRouter.route('/')
 			let indexOfdish = favorite.dishes.indexOf(req.params.dishId);
 			if (indexOfdish >= 0) {
 			Favorite.remove()
-			
-	
+
+
 		.then((favorite) => {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
 			res.json(favorite);
 		}, (err) => next(err));
 		} else{
-			err = New Error('Favorite')
-		})
+			err = new Error('Favorite')
+		}
 });
 
 //support for favorite/:dishId end point
@@ -114,7 +114,7 @@ favoriteRouter.route('/:dishId')
 	res.statusCode = 403;
 	res.end('PUT operation not supported on /favorites')
 })
-.delete(cors.corsWithOptions, authenticate.verifyUser, (res, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
 	Favorites.findById(req.params.dishId)
 	.then((favorite) => {
 		if (favorite != null && favorite.dishes.id(req.params.dishId) != null && favorite.dishes.id == req.user._id){
@@ -146,5 +146,3 @@ favoriteRouter.route('/:dishId')
 
 
 module.exports = favoriteRouter;
-
-
